@@ -18,6 +18,9 @@ var (
 // MessageReceivedHandler is called when a new message is received
 type MessageReceivedHandler func(Event, MessageOpts, ReceivedMessage)
 
+// MessageReceivedHandlerRaw is called when a new message is received - it includes the raw incoming request
+type MessageReceivedHandlerRaw func(Event, MessageOpts, ReceivedMessage, *http.Request)
+
 // MessageDeliveredHandler is called when a message sent has been successfully delivered
 type MessageDeliveredHandler func(Event, MessageOpts, Delivery)
 
@@ -41,12 +44,13 @@ type Messenger struct {
 	AccessToken string
 	PageID      string
 
-	MessageReceived  MessageReceivedHandler
-	MessageDelivered MessageDeliveredHandler
-	Postback         PostbackHandler
-	Authentication   AuthenticationHandler
-	MessageRead      MessageReadHandler
-	MessageEcho      MessageEchoHandler
+	MessageReceived    MessageReceivedHandler
+	MessageReceivedRaw MessageReceivedHandlerRaw
+	MessageDelivered   MessageDeliveredHandler
+	Postback           PostbackHandler
+	Authentication     AuthenticationHandler
+	MessageRead        MessageReadHandler
+	MessageEcho        MessageEchoHandler
 }
 
 // Handler is the main HTTP handler for the Messenger service.
@@ -103,6 +107,9 @@ func (m *Messenger) handlePOST(rw http.ResponseWriter, req *http.Request) {
 			} else if message.Message != nil {
 				if m.MessageReceived != nil {
 					go m.MessageReceived(entry.Event, message.MessageOpts, message.Message.ReceivedMessage)
+				}
+				if m.MessageReceivedRaw != nil {
+					go m.MessageReceivedRaw(entry.Event, message.MessageOpts, message.Message.ReceivedMessage, req)
 				}
 			} else if message.Postback != nil {
 				if m.Postback != nil {

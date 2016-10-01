@@ -111,6 +111,9 @@ func TestHandler(t *testing.T) {
 		mess.MessageReceived = func(Event, MessageOpts, ReceivedMessage) {
 			wg.Done()
 		}
+		mess.MessageReceivedRaw = func(Event, MessageOpts, ReceivedMessage, *http.Request) {
+			wg.Done()
+		}
 		mess.MessageDelivered = func(Event, MessageOpts, Delivery) {
 			wg.Done()
 		}
@@ -127,7 +130,7 @@ func TestHandler(t *testing.T) {
 			wg.Done()
 		}
 
-		wg.Add(5)
+		wg.Add(6)
 		// received
 		_ = r.Post("/", "application/json", `{"object":"page","entry":[{"id":"510249619162304","time":1468152703635,"messaging":[{"sender":{"id":"1066835436691078"},"recipient":{"id":"510249619162304"},"timestamp":1468152703534,"message":{"mid":"mid.1468152703527:6600c706f15a292027","seq":414,"text":"test"}}]}]}`)
 		// echo
