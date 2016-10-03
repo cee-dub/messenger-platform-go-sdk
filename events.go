@@ -1,6 +1,9 @@
 package messenger
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"net/http"
+)
 
 type upstreamEvent struct {
 	Object  string          `json:"object"`
@@ -8,8 +11,9 @@ type upstreamEvent struct {
 }
 
 type Event struct {
-	ID   json.Number `json:"id"`
-	Time int64       `json:"time"`
+	ID      json.Number   `json:"id"`
+	Time    int64         `json:"time"`
+	Request *http.Request `json:"-"`
 }
 
 type MessageOpts struct {
